@@ -1,4 +1,4 @@
-import { Guard } from '../../../../..';
+import Guard from './Guard';
 import SimpleCommand from './SimpleCommand';
 
 export default abstract class MacroCommand<
