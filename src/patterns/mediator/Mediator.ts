@@ -1,122 +1,106 @@
 //@ts-ignore
-const uuid = require('generate-unique-id');
-import Notifier from '../observer/Notifier';
+const uuid = require("generate-unique-id");
+import Notifier from "../observer/Notifier";
 
 export default abstract class Mediator<V> extends Notifier {
-  protected viewComponent: V;
-  protected id: number | string;
-  protected mediatorName: string;
-  protected notificationInterests: string[] = [];
-  protected isAwake: boolean = true;
+    protected viewComponent: V;
+    protected id: number | string;
+    protected mediatorName: string;
+    protected notificationInterests: string[] = [];
+    protected isAwake: boolean = true;
 
-  constructor(mediatorName: string, viewComponent: V) {
-    super();
-    this.mediatorName = mediatorName || NAME;
-    this.viewComponent = viewComponent;
-    this.id = uuid.init({
-      length: 6,
-      useLetters: false,
-    });
-  }
-
-  public sleep(): void {
-    this.isAwake = false;
-  }
-
-  public wake(): void {
-    this.isAwake = true;
-  }
-
-  public getMediatorName(): string {
-    return this.mediatorName;
-  }
-
-  public getMediatorId(): number | string {
-    return this.id;
-  }
-
-  public setViewComponent(viewComponent: V): void {
-    this.viewComponent = viewComponent;
-  }
-
-  public getViewComponent(): V {
-    return this.viewComponent;
-  }
-
-  public subscribeToNotifications(...notificationNames: string[]): void {
-    for (const notificationName of notificationNames) {
-      if (this.notificationInterests.indexOf(notificationName) !== -1) {
-        console.warn(
-          `${
-            (this.constructor as any).name
-          } subscribes to same notification: ${notificationName}`,
-        );
-        continue;
-      }
-      this.notificationInterests.push(notificationName);
+    constructor(mediatorName: string, viewComponent: V) {
+        super();
+        this.mediatorName = mediatorName || NAME;
+        this.viewComponent = viewComponent;
+        this.id = uuid({
+            length: 6,
+            useLetters: false
+        });
     }
-    this.updateMediator();
-  }
 
-  public subscribeToNotification(notificationName: string): void {
-    if (this.notificationInterests.indexOf(notificationName) !== -1) {
-      console.warn(
-        `${
-          (this.constructor as any).name
-        } subscribes to same notification: ${notificationName}`,
-      );
-      return;
+    public sleep(): void {
+        this.isAwake = false;
     }
-    this.notificationInterests.push(notificationName);
-    this.updateMediator();
-  }
 
-  public unsubscribeToNotification(...notificationNames: string[]): void {
-    for (const notificationName of notificationNames) {
-      const notificationIndex: number = this.notificationInterests.indexOf(
-        notificationName,
-      );
-      if (notificationIndex === -1) {
-        return;
-      }
-      this.notificationInterests.splice(notificationIndex, 1);
+    public wake(): void {
+        this.isAwake = true;
     }
-    this.updateMediator();
-  }
 
-  public handleSubscribedNotification(
-    notificationName: string,
-    ...args: any[]
-  ): void {
-    this.isAwake && this.handleNotification(notificationName, ...args);
-  }
+    public getMediatorName(): string {
+        return this.mediatorName;
+    }
 
-  public abstract registerNotificationInterests(): void;
+    public getMediatorId(): number | string {
+        return this.id;
+    }
 
-  protected abstract handleNotification(
-    notificationName: string,
-    ...args: any[]
-  ): void;
+    public setViewComponent(viewComponent: V): void {
+        this.viewComponent = viewComponent;
+    }
 
-  public onRegister(): void {}
+    public getViewComponent(): V {
+        return this.viewComponent;
+    }
 
-  public onRemove(): void {}
+    public subscribeToNotifications(...notificationNames: string[]): void {
+        for (const notificationName of notificationNames) {
+            if (this.notificationInterests.indexOf(notificationName) !== -1) {
+                console.warn(`${(this.constructor as any).name} subscribes to same notification: ${notificationName}`);
+                continue;
+            }
+            this.notificationInterests.push(notificationName);
+        }
+        this.updateMediator();
+    }
 
-  public setMediatorId(id: number | string): void {
-    this.id = id;
-  }
+    public subscribeToNotification(notificationName: string): void {
+        if (this.notificationInterests.indexOf(notificationName) !== -1) {
+            console.warn(`${(this.constructor as any).name} subscribes to same notification: ${notificationName}`);
+            return;
+        }
+        this.notificationInterests.push(notificationName);
+        this.updateMediator();
+    }
 
-  get listNotificationInterests(): string[] {
-    return this.notificationInterests;
-  }
+    public unsubscribeToNotification(...notificationNames: string[]): void {
+        for (const notificationName of notificationNames) {
+            const notificationIndex: number = this.notificationInterests.indexOf(notificationName);
+            if (notificationIndex === -1) {
+                return;
+            }
+            this.notificationInterests.splice(notificationIndex, 1);
+        }
+        this.updateMediator();
+    }
 
-  protected updateMediator(): void {
-    this.facade.updateMediator(this);
-  }
+    public handleSubscribedNotification(notificationName: string, ...args: any[]): void {
+        this.isAwake && this.handleNotification(notificationName, ...args);
+    }
 
-  get index(): number {
-    return this.facade.getMediatorIndex(this);
-  }
+    public abstract registerNotificationInterests(): void;
+
+    protected abstract handleNotification(notificationName: string, ...args: any[]): void;
+
+    public onRegister(): void {}
+
+    public onRemove(): void {}
+
+    public setMediatorId(id: number | string): void {
+        this.id = id;
+    }
+
+    get listNotificationInterests(): string[] {
+        return this.notificationInterests;
+    }
+
+    protected updateMediator(): void {
+        this.facade.updateMediator(this);
+    }
+
+    get index(): number {
+        return this.facade.getMediatorIndex(this);
+    }
 }
 
-const NAME: string = 'Mediator';
+const NAME: string = "Mediator";

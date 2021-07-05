@@ -1,55 +1,57 @@
-const path = require('path');
-const { merge } = require('webpack-merge');
-const packageJson = require('../package.json');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const path = require("path");
+const { merge } = require("webpack-merge");
+const packageJson = require("../package.json");
+const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
 
-const parts = require('./webpack.parts.config');
+const parts = require("./webpack.parts.config");
 
 let main = packageJson.main;
-main = main.replace(/^.*[\\/]/, '');
+main = main.replace(/^.*[\\/]/, "");
 
-const libraryName = main.substring(0, main.lastIndexOf('.'));
+const libraryName = main.substring(0, main.lastIndexOf("."));
 
 const paths = {
-  base: path.resolve('src'),
-  app: path.resolve('src/index.ts'),
-  dist: path.resolve('lib'),
+    base: path.resolve("src"),
+    app: path.resolve("src/index.ts"),
+    dist: path.resolve("lib")
 };
 
 const libConfig = merge([
-  {
-    target: 'web',
-    context: paths.base,
-    entry: {
-      app: paths.app,
+    {
+        target: "web",
+        context: paths.base,
+        entry: {
+            app: paths.app
+        },
+        output: {
+            library: libraryName,
+            filename: libraryName + ".js",
+            libraryTarget: "umd",
+            umdNamedDefine: true,
+            path: paths.dist
+        },
+        resolve: {
+            modules: [path.resolve("./node_modules"), path.resolve("./src")],
+            extensions: [".json", ".js", ".ts"]
+        },
+        optimization: {
+            // We no not want to minimize our code.
+            minimize: true
+        },
+        plugins: [new CaseSensitivePathsPlugin()]
     },
-    output: {
-      library: libraryName,
-      filename: libraryName + '.js',
-      libraryTarget: 'umd',
-      umdNamedDefine: true,
-      path: paths.dist,
-    },
-    resolve: {
-      modules: [path.resolve('./node_modules'), path.resolve('./src')],
-      extensions: ['.json', '.js', '.ts'],
-    },
-    optimization: {
-      // We no not want to minimize our code.
-      minimize: true,
-    },
-    plugins: [new CaseSensitivePathsPlugin()],
-  },
 
-  parts.loadJs({}),
+    parts.loadJs({}),
 
-  parts.cleanup(),
+    // parts.sourceMaps("source-map"),
 
-  parts.attachRevision(),
+    parts.cleanup(),
+
+    parts.attachRevision()
 ]);
 
-module.exports = env => {
-  const config = merge(libConfig);
+module.exports = (env) => {
+    const config = merge(libConfig);
 
-  return config;
+    return config;
 };
