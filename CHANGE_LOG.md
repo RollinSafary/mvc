@@ -3,6 +3,9 @@
 ### **SEE MORE DETAILS ABOUT NEW FEATURES IN `README`**
 
 ---
+## v1.0.8
+Changed guards workflow. Now `onAllGuardsDenied` won't fire if there's no guard added in preparation stage.
+Added `failedGuards` and `approvedGuards` arrays that are containing failed and approved guards class names, to give an ability to write more flexible logic in `onAllGuardsDenied`, `onAnyGuardDenied` and `onAnyGuardApproved` functions.
 ## v1.0.7
 updated dependency packages versions
 ## v1.0.6
