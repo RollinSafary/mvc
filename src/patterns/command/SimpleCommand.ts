@@ -1,3 +1,4 @@
+import { FunctionArgs } from "../../common/general";
 import Notifier from "../observer/Notifier";
 import Guard from "./Guard";
 
@@ -13,22 +14,22 @@ export default abstract class SimpleCommand extends Notifier {
         this.prepare();
     }
 
-    public async startCommandExecution(notificationName?: string, ...args: any[]): Promise<void> {
+    public async startCommandExecution<A extends FunctionArgs>(notificationName?: string, ...args: A): Promise<void> {
         !this.isChecked && (await this.checkGuards(notificationName, ...args));
         this.startExecution(notificationName, ...args);
     }
 
-    public abstract execute(notificationName?: string, ...args: any[]): void;
+    public abstract execute<A extends FunctionArgs>(notificationName?: string, ...args: A): void;
 
-    protected onAnyGuardApproved(notificationName?: string, ...args: any[]): void {
+    protected onAnyGuardApproved<A extends FunctionArgs>(notificationName?: string, ...args: A): void {
         notificationName;
         args;
     }
-    protected onAnyGuardDenied(notificationName?: string, ...args: any[]): void {
+    protected onAnyGuardDenied<A extends FunctionArgs>(notificationName?: string, ...args: A): void {
         notificationName;
         args;
     }
-    protected onAllGuardsDenied(notificationName?: string, ...args: any[]): void {
+    protected onAllGuardsDenied<A extends FunctionArgs>(notificationName?: string, ...args: A): void {
         notificationName;
         args;
     }
@@ -41,11 +42,11 @@ export default abstract class SimpleCommand extends Notifier {
         }
     }
 
-    protected sendNotification(notificationName: string, ...args: any[]): void {
+    protected sendNotification<A extends FunctionArgs>(notificationName: string, ...args: A): void {
         this.facade.sendNotification(notificationName, ...args);
     }
 
-    protected startExecution(notificationName: string, ...args: any[]): void {
+    protected startExecution<A extends FunctionArgs>(notificationName: string, ...args: A): void {
         switch (true) {
             case this.approvedGuardsCount === this.guards.length:
                 this.execute(notificationName, ...args);
@@ -60,10 +61,10 @@ export default abstract class SimpleCommand extends Notifier {
         }
     }
 
-    protected async checkGuards(notificationName: string, ...args: any[]): Promise<void> {
+    protected async checkGuards<A extends FunctionArgs>(notificationName: string, ...args: A): Promise<void> {
         for (const guard of this.guards) {
             const guardName: string = guard.constructor.name;
-            guard.initializeNotifier(this.multitonKey);
+            guard.initializeNotifier(this.singletonInstanceKey);
             const isApproved = await guard.approve(notificationName, ...args);
             isApproved ? this.approvedGuards.push(guardName) : this.failedGuards.push(guardName);
         }

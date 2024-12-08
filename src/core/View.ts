@@ -1,5 +1,7 @@
-import { EventEmitter } from "eventemitter3";
 import Mediator from "../patterns/mediator/Mediator";
+import { createErrorForDuplicateKey } from "../common/utils";
+import { EventEmitter } from "../common/EventEmitter";
+import { FunctionArgs } from "../common/general";
 
 export default class View {
     public static getInstance(key: string): View {
@@ -20,36 +22,35 @@ export default class View {
 
     private static instanceMap: { [key: string]: View } = {};
 
-    private multitonKey: string;
+    private singletonInstanceKey: string;
     private mediatorMap: IMediatorMap = {};
-    // @ts-ignore
     private eventEmitter: EventEmitter = new EventEmitter();
 
     constructor(key: string) {
         if (View.instanceMap[key]) {
-            throw new Error(MULTITON_MSG);
+            throw createErrorForDuplicateKey(this.constructor.name, key);
         }
-        this.multitonKey = key;
+        this.singletonInstanceKey = key;
         this.initializeView();
     }
 
-    public removeObserver(
+    public removeObserver<C, A extends FunctionArgs>(
         notificationName: string,
-        observerMethod: (notificationName: string, ...args: any[]) => void,
-        context: any
+        observerMethod: (notificationName: string, ...args: A) => void,
+        context?: C
     ): void {
         this.eventEmitter.off(notificationName, observerMethod, context);
     }
 
-    public registerObserver(
+    public registerObserver<C, A extends FunctionArgs>(
         notificationName: string,
-        observerMethod: (notificationName: string, ...args: any[]) => void,
-        context: any
+        observerMethod: (notificationName: string, ...args: A) => void,
+        context?: C
     ): void {
         this.eventEmitter.on(notificationName, observerMethod, context);
     }
 
-    public notifyObservers(notificationName: string, ...args: any[]): void {
+    public notifyObservers<A extends FunctionArgs>(notificationName: string, ...args: A): void {
         this.eventEmitter.emit(notificationName, notificationName, ...args);
     }
 
@@ -58,7 +59,7 @@ export default class View {
             return;
         }
 
-        mediator.initializeNotifier(this.multitonKey);
+        mediator.initializeNotifier(this.singletonInstanceKey);
         mediator.registerNotificationInterests();
         // register the mediator for retrieval by name
         if (!this.mediatorMap[mediator.getMediatorName()]) {
@@ -171,8 +172,6 @@ export default class View {
         return mediatorMapElements.indexOf(mapElement);
     }
 }
-
-const MULTITON_MSG: string = "View instance for this Multiton key already constructed!";
 
 export interface IMediatorMapElement {
     mediator: Mediator<any>;

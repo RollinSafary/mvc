@@ -1,28 +1,27 @@
-import Facade from '../facade/Facade';
+import { FunctionArgs } from "../../common/general";
+import { createErrorForNotInitialized } from "../../common/utils";
+import Facade from "../facade/Facade";
 
 export default class Notifier {
-  protected facade: Facade;
-  protected multitonKey: string;
+    protected facade: Facade;
+    protected singletonInstanceKey: string;
 
-  public initializeNotifier(key: string): void {
-    this.multitonKey = key;
-    this.facade = this.getFacade();
-  }
-
-  protected sendNotification(notificationName: string, ...args: any[]): void {
-    if (this.facade) {
-      this.facade.sendNotification(notificationName, ...args);
-    }
-  }
-
-  private getFacade(): Facade {
-    if (this.multitonKey === null) {
-      throw new Error(MULTITON_MSG);
+    public initializeNotifier(key: string): void {
+        this.singletonInstanceKey = key;
+        this.facade = this.getFacade();
     }
 
-    return Facade.getInstance(this.multitonKey);
-  }
+    protected sendNotification<A extends FunctionArgs>(notificationName: string, ...args: A): void {
+        if (this.facade) {
+            this.facade.sendNotification(notificationName, ...args);
+        }
+    }
+
+    private getFacade(): Facade {
+        if (this.singletonInstanceKey === null) {
+            throw createErrorForNotInitialized(this.constructor.name);
+        }
+
+        return Facade.getInstance(this.singletonInstanceKey);
+    }
 }
-
-const MULTITON_MSG: string =
-  'multitonKey for this Notifier not yet initialized!';

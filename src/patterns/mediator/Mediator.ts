@@ -1,5 +1,6 @@
 //@ts-ignore
 const uuid = require("generate-unique-id");
+import { FunctionArgs } from "../../common/general";
 import Notifier from "../observer/Notifier";
 
 export default abstract class Mediator<V> extends Notifier {
@@ -74,13 +75,13 @@ export default abstract class Mediator<V> extends Notifier {
         this.updateMediator();
     }
 
-    public handleSubscribedNotification(notificationName: string, ...args: any[]): void {
+    public handleSubscribedNotification<A extends FunctionArgs>(notificationName: string, ...args: A): void {
         this.isAwake && this.handleNotification(notificationName, ...args);
     }
 
     public abstract registerNotificationInterests(): void;
 
-    protected abstract handleNotification(notificationName: string, ...args: any[]): void;
+    protected abstract handleNotification<A extends FunctionArgs>(notificationName: string, ...args: A): void;
 
     public onRegister(): void {}
 

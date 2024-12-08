@@ -1,7 +1,6 @@
 const path = require("path");
 const { merge } = require("webpack-merge");
 const packageJson = require("../package.json");
-const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
 
 const parts = require("./webpack.parts.config");
 
@@ -28,26 +27,21 @@ const libConfig = merge([
             filename: libraryName + ".js",
             libraryTarget: "umd",
             umdNamedDefine: true,
-            path: paths.dist
+            path: paths.dist,
+            clean: true
         },
         resolve: {
             modules: [path.resolve("./node_modules"), path.resolve("./src")],
             extensions: [".json", ".js", ".ts"]
         },
         optimization: {
-            // We no not want to minimize our code.
             minimize: true
-        },
-        plugins: [new CaseSensitivePathsPlugin()]
+        }
     },
 
-    parts.loadJs({}),
+    parts.loadJs({})
 
     // parts.sourceMaps("source-map"),
-
-    parts.cleanup(),
-
-    parts.attachRevision()
 ]);
 
 module.exports = (env) => {

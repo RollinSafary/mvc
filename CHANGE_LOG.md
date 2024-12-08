@@ -3,6 +3,9 @@
 ### **SEE MORE DETAILS ABOUT NEW FEATURES IN `README`**
 
 ---
+## v2.0.0
+Provided proper type defs to avoid `any` type as much as possible.
+Removed `EventEmitter3` package and replaced with custom one.
 ## v1.0.8
 Changed guards workflow. Now `onAllGuardsDenied` won't fire if there's no guard added in preparation stage.
 Added `failedGuards` and `approvedGuards` arrays that are containing failed and approved guards class names, to give an ability to write more flexible logic in `onAllGuardsDenied`, `onAnyGuardDenied` and `onAnyGuardApproved` functions.

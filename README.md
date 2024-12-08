@@ -20,11 +20,12 @@ Based on standard Model-View-Controller architecture with extended functionality
 8. Mediator have `index:number` property which shows the index in the same name mediators' list.
 9. Same notification can call multiple commands. Functions are added to remove commands from notification's call queue. To remove single command from call queue call `removeCommand(notificationName:string, command:SimpleCommand):void` on facade, and to remove all commands from notification's queue call `removeCommands(notificationName: string):void` on facade.
 10. To register command to work once use `registerCommandOnce(notificationName, command):void` on facade. It will be called only once, then it will be removed from commands queue.
-11. Added `Guard` for command, it can be used to make checks before command will `execute`, it has reference to `Facade` too. `Guard` has `abstract approve(notificationName: string, ...args: any[]):boolean | Promise<boolean>` function which must be overridden. Async usage of `approve` function is possible.
+11. Added `Guard` for command, it can be used to make checks before command will `execute`, it has reference to `Facade` too. `Guard` has `abstract approve(notificationName: string, ...args: []):boolean | Promise<boolean>` function which must be overridden. Async usage of `approve` function is possible.
 12. Added `addGuard(...guardClassRefs: Guard[]):void`, `Guard` classes (not their instances) need to be given as arguments.
-13. Added `onAnyGuardApproved(notificationName: string, ...args: any[]):void`, `onAnyGuardDenied(notificationName, ...args: any[]):void` and `onAllGuardsDenied(notificationName, ...args: any[]):void` functions for handling guards approving cases.
+13. Added `onAnyGuardApproved(notificationName: string, ...args: []):void`, `onAnyGuardDenied(notificationName, ...args: []):void` and `onAllGuardsDenied(notificationName, ...args: []):void` functions for handling guards approving cases.
 14. Command has protected method `prepare():void`, which is provided to add guards.
 15. Command execution is being done in following sequence, <br>`prepare -> checkGuards -> execute || onAnyGuardDenied && onAllGuardDenied`
 16. MacroCommands now can add `exclusiveSubCommands`, so if on of added subCommands is approved, others won't event checked. To add `exclusiveSubCommand` call `addExclusiveSubCommand(command, ...guards)`. Note that `exclusiveSubCommand`'s check is checking subCommand's self guards too. Even if you've added duplicate guards, exclusiveSubCommand checker will check only unique guards.
 17. Added `registerMediators` and `removeMediators` functions.
-18. Mediator has new method `subscribeToNotification` not to use `subscribeToNotifications` when subcribing to one notification.
+18. Mediator has new method `subscribeToNotification` not to use `subscribeToNotifications` when subscribing to one notification.
+19. Declared a new type called `FunctionArgs = unknown[]` and replaced all `...args: any[]` with `...args: A extends FunctionArgs`
